@@ -29,14 +29,14 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 
 
-## 把fswebcam寫入shell script ##
+## 2.把fswebcam寫入shell script ##
 
 在/home/pi/建立Timelapse資料夾裝這project東西，然後寫一個`capture.sh`(已在上方)
 
 
 抓取時會依日期自動建立`/home/pi/Timelapse/yyyymmdd`，將圖片存在裡面
 
-## 用crontab設定每分鐘執行抓圖 ##
+## 3.用crontab設定每分鐘執行抓圖 ##
 
 > crontab -e
 
@@ -51,7 +51,7 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 若排程有問題沒有被執行，到`/var/log/syslog`看系統回傳訊息
 
 
-## 利用avconv/ffmpeg/gstreamer等影像處 ##
+## 4.利用avconv/ffmpeg/gstreamer等影像處 ##
 
 將圖片透過H.264壓縮輸出成影像檔，由於之前使用avconv做串流很耗效能的經驗，直接選gstreamer了
 
@@ -71,7 +71,7 @@ x264enc：
 
 寫成outputVideo.sh(已在上方)丟在`/home/pi/Timelapse`
 
-## 輸出影片 ##
+## 5.輸出影片 ##
 給定參數1.日期 2.抓取資料的天數，如果都不給就預設當天
 
 輸出指定日期影片：「/home/pi/Timelapse/outputVideo.sh 2018-12-25」(輸出2018年12月25日當日的縮時影片)
@@ -80,7 +80,7 @@ x264enc：
 
 
 
-## 結論 ##
+## 6.結論 ##
 有很多參數還可以調整，framerate, encode type等等可以些成"Passing named arguments to shell scripts"
 
 之後再慢慢調整...先求有再求好
