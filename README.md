@@ -25,7 +25,7 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 ## 2.把fswebcam寫入shell script ##
 
-建立`/home/pi/Timelapse`，然後寫一個`capture.sh`(已在上方)
+建立`/home/pi/Timelapse`，然後寫一個`capturePhoto.sh`(已在上方)
 
 .sh以下列格式進行截圖
 
@@ -45,7 +45,7 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 進入後加一列排程在下面
 
-`*/1 * * * * /home/pi/Timelapse/capture.sh > /dev/null 2 > &1`
+`*/1 * * * * /home/pi/Timelapse/capturePhoto.sh > /dev/null 2 > &1`
 
 儲存後顯示成功訊息：
 
