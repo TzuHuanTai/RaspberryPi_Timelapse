@@ -7,7 +7,7 @@ use raspberry pi and logitec c920 do Timelapse video
 
 沒用python的原因是因為time.sleep會累加延遲，不是真的"準點定時拍攝"。ex: 程式前面雜項跑3秒後，time.sleep(10)，這樣會整個delay13秒
 
-如果要「import os」的時間判斷，那while無窮迴圈跑在那邊抓時間判斷滿耗資源的。
+如果要「import os」時間判斷，那while無窮迴圈跑在那邊抓時間判斷滿耗資源的。
 
 另一個motion其實滿方便的，如果要"每秒"拍攝目前想到的只有用motion。
 
@@ -31,10 +31,10 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 ## 2.把fswebcam寫入shell script ##
 
-在/home/pi/建立Timelapse資料夾裝這project東西，然後寫一個`capture.sh`(已在上方)
+建立`/home/pi/Timelapse`，然後寫一個`capture.sh`(已在上方)
 
+抓取時會依日期自動建立`/home/pi/Timelapse/photo/yyyymmdd`，將圖片存在裡面
 
-抓取時會依日期自動建立`/home/pi/Timelapse/yyyymmdd`，將圖片存在裡面
 
 ## 3.用crontab設定每分鐘執行抓圖 ##
 
@@ -65,26 +65,23 @@ omxh264ecn：
 x264enc：
 `gst-launch-1.0 multifilesrc location="./temp/%05d.jpg" caps="image/jpeg,framerate=10/1" ! jpegdec ! x264enc ! matroskamux ! filesink location="$beginDate\_$days.mkv"`
 
-如果要調整h.264編碼畫質，在另外調qp值(參考資料8)，ex:「 ! x264enc quantizer=1 ! 」，數值越小圖片細節保留越多。
+如果要調整h.264編碼畫質，再另外改寫.sh調qp值(參考資料8)，ex:「 ! x264enc quantizer=1 ! 」，數值越小圖片細節保留越多。
 
 還有很多參數可以調，詳情google~
 
 寫成outputVideo.sh(已在上方)丟在`/home/pi/Timelapse`
 
 ## 5.輸出影片 ##
-給定參數1.日期 2.抓取資料的天數，如果都不給就預設當天
+給定參數
+-b : string, bigen date yyyymmdd
+-d : int, days
+-f : int, framerate
+-e : string, encode type (omxh264enc/x264enc)
+如果都不給就預設當天
 
-輸出指定日期影片：「/home/pi/Timelapse/outputVideo.sh 2018-12-25」(輸出2018年12月25日當日的縮時影片)
+輸出指定日期影片：「/home/pi/Timelapse/outputVideo.sh -b 2018-12-25 」(輸出2018年12月25日當日的縮時影片)
 
-輸出日期區間影片：「/home/pi/Timelapse/outputVideo.sh 2018-12-25 10」(意思是2018年12月25日為初始日(含)，匯出10天長度的影片)
-
-
-
-## 6.結論 ##
-有很多參數還可以調整，framerate, encode type等等可以些成"Passing named arguments to shell scripts"
-
-之後再慢慢調整...先求有再求好
-
+輸出日期區間影片：「/home/pi/Timelapse/outputVideo.sh -b 2018-12-25 -d 10」(意思是2018年12月25日為初始日(含)，匯出10天長度的影片)
 
 
 ## 參考資料 ##
