@@ -1,7 +1,6 @@
 # RaspberryPi_Timelapse
-use raspberry pi and logitec c920 do Timelapse video
 
-利用樹莓派做縮時攝影
+利用logitech c920與樹莓派做縮時攝影
 
 查網路很多資料有人用python或是motion
 
@@ -13,16 +12,16 @@ use raspberry pi and logitec c920 do Timelapse video
 
 crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈性比較高。
 
-
+</br>
 
 ## 1.接上webcam透過fswebcam抓圖 ##
 
 攝影機可以先到 [RPi USB Webcams](https://elinux.org/RPi_USB_Webcams)，看前人們將各款webcam裝在樹莓派會不會有問題
 
 安裝截圖軟體
->sudo apt-get install fswebcam」
+>sudo apt-get install fswebcam
 
-
+</br>
 
 ## 2.把fswebcam寫入shell script ##
 
@@ -38,6 +37,7 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 抓取時會依日期自動建立`/home/pi/Timelapse/photo/yyyymmdd`，將圖片存在裡面
 
+</br>
 
 ## 3.用crontab設定每分鐘執行抓圖 ##
 
@@ -53,6 +53,7 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 若排程有問題沒有被執行，到`/var/log/syslog`看系統回傳訊息
 
+</br>
 
 ## 4.利用avconv/ffmpeg/gstreamer等影像處 ##
 
@@ -60,19 +61,25 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 omxh264ecn或x264enc編碼器都可以，老樣子openMax H.264硬體加速還是讓影片產出速度快一些！
 
-在樹莓派上執行720p*1000圖片 =>  720p10fps影片，omxh264enc約30秒，x264enc約3分鐘！
+實測:
 
-omxh264ecn：
+在樹莓派上執行720p*1000圖片 => 720p10fps影片
+
+omxh264ecn：約30秒
+
 `gst-launch-1.0 multifilesrc location="./temp/%05d.jpg" caps="image/jpeg,framerate=10/1" ! jpegdec ! videoconvert ! omxh264enc ! h264parse ! matroskamux ! filesink location="$beginDate\_$days.mkv"`
 
-x264enc：
+x264enc：約3分鐘！
+
 `gst-launch-1.0 multifilesrc location="./temp/%05d.jpg" caps="image/jpeg,framerate=10/1" ! jpegdec ! x264enc ! matroskamux ! filesink location="$beginDate\_$days.mkv"`
 
 如果要調整h.264編碼畫質，再另外改寫.sh調qp值(參考資料8)，ex:「 ! x264enc quantizer=1 ! 」，數值越小圖片細節保留越多。
 
 還有很多參數可以調，詳情google~
 
-寫成outputVideo.sh(已在上方)丟在`/home/pi/Timelapse`
+寫成outputVideo.sh放在`/home/pi/Timelapse`
+
+</br>
 
 ## 5.輸出影片 ##
 給定參數
@@ -92,22 +99,23 @@ x264enc：
 
 影片檔案輸出於`/home/pi/Timelapse/`格式為`.mkv`
 
+</br>
 
 ## 參考資料 ##
-1. Script要怎麼每當整點就執行一次指令？, https://www.ptt.cc/bbs/Linux/M.1316098032.A.53C.html
+1. [Script要怎麼每當整點就執行一次指令？](https://www.ptt.cc/bbs/Linux/M.1316098032.A.53C.html)
 
-1. fswebcam command options, http://manpages.ubuntu.com/manpages/bionic/man1/fswebcam.1.html
+1. [fswebcam command options](http://manpages.ubuntu.com/manpages/bionic/man1/fswebcam.1.html)
 
-1. Create timelapse videos using gstreamer tools (h.264), http://www.tal.org/tutorials/timelapse-video-gstreamer
+1. [Create timelapse videos using gstreamer tools (h.264)](http://www.tal.org/tutorials/timelapse-video-gstreamer)
 
-1. 利用 RASPBERRY PI 3 MODEL B 與 USB WEBCAM 進行縮時攝影(Python), https://blog.everlearn.tw/%E7%95%B6-python-%E9%81%87%E4%B8%8A-raspberry-pi/%E5%88%A9%E7%94%A8-raspberry-pi-3-model-b-%E8%88%87-usb-webcam-%E9%80%B2%E8%A1%8C%E7%B8%AE%E6%99%82%E6%94%9D%E5%BD%B1
+1. [利用 RASPBERRY PI 3 MODEL B 與 USB WEBCAM 進行縮時攝影(Python)](https://blog.everlearn.tw/%E7%95%B6-python-%E9%81%87%E4%B8%8A-raspberry-pi/%E5%88%A9%E7%94%A8-raspberry-pi-3-model-b-%E8%88%87-usb-webcam-%E9%80%B2%E8%A1%8C%E7%B8%AE%E6%99%82%E6%94%9D%E5%BD%B1)
 
-1. Contact Privacy Timelapse with fswebcam and avconv, http://www.kupply.com/timelapse-with-fswebcam-and-avconv/
+1. [Contact Privacy Timelapse with fswebcam and avconv](http://www.kupply.com/timelapse-with-fswebcam-and-avconv/)
 
-1. Creating a timelapse clip with avconv, https://techedemic.com/2014/09/18/creating-a-timelapse-clip-with-avconv/
+1. [Creating a timelapse clip with avconv](https://techedemic.com/2014/09/18/creating-a-timelapse-clip-with-avconv/)
 
-1. How to get FFMPEG to join non-sequential image files? (skip by 3s), https://video.stackexchange.com/questions/7300/how-to-get-ffmpeg-to-join-non-sequential-image-files-skip-by-3s/7320 
+1. [How to get FFMPEG to join non-sequential image files? (skip by 3s)](https://video.stackexchange.com/questions/7300/how-to-get-ffmpeg-to-join-non-sequential-image-files-skip-by-3s/7320)
 
-1. 量化参数 quantization parameter以及HEVC中QP详解, https://blog.csdn.net/liangjiubujiu/article/details/80569391
+1. [量化参数 quantization parameter以及HEVC中QP详解](https://blog.csdn.net/liangjiubujiu/article/details/80569391)
 
-1. Passing named arguments to shell scripts, https://unix.stackexchange.com/questions/129391/passing-named-arguments-to-shell-scripts
+1. [Passing named arguments to shell scripts](https://unix.stackexchange.com/questions/129391/passing-named-arguments-to-shell-scripts)
