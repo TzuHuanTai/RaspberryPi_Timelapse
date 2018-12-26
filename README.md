@@ -19,19 +19,22 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 攝影機可以先到 [RPi USB Webcams](https://elinux.org/RPi_USB_Webcams)，看前人們將各款webcam裝在樹莓派會不會有問題
 
-安裝截圖軟體「sudo apt-get install fswebcam」，會以下列格式進行截圖
-
->fswebcam -r 1280x720 -S 60 --banner-colour '#FF000000' --line-colour '#FF000000' --timestamp '%Y-%m-%d %H:%M' --font 'sans:32' ‵date +%Y%m%d%H%M`.jpg
-
-當中-s 表示Skip 60 frame讓webcam先自動對焦調整畫面，抓第61張圖
-
-另外把資訊欄位底色設成透明，改timestamp格式跟字型大小
+安裝截圖軟體
+>sudo apt-get install fswebcam」
 
 
 
 ## 2.把fswebcam寫入shell script ##
 
 建立`/home/pi/Timelapse`，然後寫一個`capture.sh`(已在上方)
+
+.sh以下列格式進行截圖
+
+>fswebcam -r 1280x720 -S 60 --banner-colour '#FF000000' --line-colour '#FF000000' --timestamp '%Y-%m-%d %H:%M' --font 'sans:32' ‵date +%Y%m%d%H%M`.jpg
+
+當中-s 表示Skip 60 frame讓webcam先自動對焦調整畫面，抓第61張圖
+
+另外把資訊欄位底色設成透明，改timestamp格式跟字型大小
 
 抓取時會依日期自動建立`/home/pi/Timelapse/photo/yyyymmdd`，將圖片存在裡面
 
@@ -79,9 +82,15 @@ x264enc：
 -e : string, encode type (omxh264enc/x264enc)
 如果都不給就預設當天
 
-輸出指定日期影片：「/home/pi/Timelapse/outputVideo.sh -b 2018-12-25 」(輸出2018年12月25日當日的縮時影片)
+輸出2018年12月25日當日的縮時影片：
 
-輸出日期區間影片：「/home/pi/Timelapse/outputVideo.sh -b 2018-12-25 -d 10」(意思是2018年12月25日為初始日(含)，匯出10天長度的影片)
+> /home/pi/Timelapse/outputVideo.sh -b 2018-12-25 
+
+輸出2018年12月25日為初始日(含)，匯出10天長度的影片：
+
+> /home/pi/Timelapse/outputVideo.sh -b 2018-12-25 -d 10
+
+影片檔案輸出於`/home/pi/Timelapse/`格式為`.mkv`
 
 
 ## 參考資料 ##
