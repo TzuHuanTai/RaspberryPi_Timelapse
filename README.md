@@ -83,10 +83,15 @@ x264enc：約3分鐘！
 
 ## 5.輸出影片 ##
 給定參數
+
 -b : string, bigen date yyyymmdd
+
 -d : int, days
+
 -f : int, framerate
+
 -e : string, encode type (omxh264enc/x264enc)
+
 如果都不給就預設當天
 
 輸出2018年12月25日當日的縮時影片：
