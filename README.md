@@ -41,11 +41,13 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 ## 3.用crontab設定每分鐘執行抓圖 ##
 
+`sudo apt-get install postfix`避免發生錯誤 >(CRON) info (No MTA installed, discarding output)
+
 > crontab -e
 
 進入後加一列排程在下面
 
-`*/1 * * * * /home/pi/Timelapse/capturePhoto.sh > /dev/null 2 > &1`
+`*/1 * * * * cd /home/pi/Timelapse && ./capturePhoto.sh > /dev/null 2 > &1`
 
 儲存後顯示成功訊息：
 
