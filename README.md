@@ -1,6 +1,8 @@
 # RaspberryPi_Timelapse
 
-利用logitech c920與樹莓派做縮時攝影
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/p-jitFF3ug8/0.jpg)](https://www.youtube.com/watch?v=p-jitFF3ug8)
+
+利用Raspberry Pi & 5MP Camera v1.3做縮時攝影
 
 查網路很多資料有人用python或是motion
 
