@@ -14,16 +14,11 @@
 
 crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈性比較高。
 
-</br>
-
 ## 1.接上webcam透過fswebcam抓圖 ##
 
 攝影機可以先到 [RPi USB Webcams](https://elinux.org/RPi_USB_Webcams)，看前人們將各款webcam裝在樹莓派會不會有問題
 
-安裝截圖軟體
->sudo apt-get install fswebcam
-
-</br>
+安裝截圖軟體`sudo apt-get install fswebcam`
 
 ## 2.把fswebcam寫入shell script ##
 
@@ -57,24 +52,17 @@ crontab最快頻率也只有每分鐘一次，選shell script主要是因為彈�
 
 若排程有問題沒有被執行，到`/var/log/syslog`看系統回傳訊息
 
-</br>
-
 ## 4.利用avconv/ffmpeg/gstreamer等影像處 ##
 
 將圖片透過H.264壓縮輸出成影像檔，由於之前使用avconv做串流很耗效能的經驗，直接選gstreamer了
 
 omxh264ecn或x264enc編碼器都可以，老樣子openMax H.264硬體加速還是讓影片產出速度快一些！
 
-實測:
-
+### 實測 ### 
 在樹莓派上執行720p*1000圖片 => 720p10fps影片
-
-omxh264ecn：約30秒
-
+* omxh264ecn：約30秒
 `gst-launch-1.0 multifilesrc location="./temp/%05d.jpg" caps="image/jpeg,framerate=10/1" ! jpegdec ! videoconvert ! omxh264enc ! h264parse ! matroskamux ! filesink location="$beginDate\_$days.mkv"`
-
-x264enc：約3分鐘！
-
+* x264enc：約3分鐘！
 `gst-launch-1.0 multifilesrc location="./temp/%05d.jpg" caps="image/jpeg,framerate=10/1" ! jpegdec ! x264enc ! matroskamux ! filesink location="$beginDate\_$days.mkv"`
 
 如果要調整h.264編碼畫質，再另外改寫.sh調qp值(參考資料8)，ex:「 ! x264enc quantizer=1 ! 」，數值越小圖片細節保留越多。
@@ -83,18 +71,16 @@ x264enc：約3分鐘！
 
 寫成outputVideo.sh放在`/home/pi/Timelapse`
 
-</br>
-
 ## 5.輸出影片 ##
 給定參數
 
--b : string, bigen date yyyymmdd
+* -b : string, bigen date yyyymmdd
 
--d : int, days
+* -d : int, days
 
--f : int, framerate
+* -f : int, framerate
 
--e : string, encode type (omxh264enc/x264enc)
+* -e : string, encode type (omxh264enc/x264enc)
 
 如果都不給就預設當天
 
@@ -108,7 +94,43 @@ x264enc：約3分鐘！
 
 影片檔案輸出於`/home/pi/Timelapse/`格式為`.mkv`
 
-</br>
+### 在windows上用ffmpeg常用筆記 ###
+
+* 4倍速
+`ffmpeg -i 20191207_20200107.mp4 -filter:v "setpts=0.25*PTS" output.mp4` [ref](https://trac.ffmpeg.org/wiki/How%20to%20speed%20up%20/%20slow%20down%20a%20video)
+
+* shell script改名
+由於windows不支援glob語法 [ref](https://stackoverflow.com/questions/31201164/ffmpeg-error-pattern-type-glob-was-selected-but-globbing-is-not-support-ed-by)
+所以還是只能rename後用連續檔名製作
+rename script on Windows PowerShell
+更改迴圈format [ref](https://ss64.com/ps/syntax-f-operator.html)
+測試：`dir | %{$x=0} {"{0:d5}" -f $x ;$x++}`
+
+* 實際改名：`dir | %{$x=0} {
+	$newName = "{0:d5}.jpg" -f $x 
+	Rename-Item $_ -NewName $newName ; $x++}`
+
+* 預設排序ascending, 若要倒敘改 [ref-1](https://stackoverflow.com/questions/32593664/is-powershell-sort-object-ascending-deprecated) [ref-2](https://www.maketecheasier.com/batch-rename-files-in-windows/)
+正序改名：
+`(Get-ChildItem -name | Sort) | %{$x=0} {
+	$newName = "{0:d5}.jpg" -f $x 
+	Rename-Item $_ -NewName $newName ; $x++}`
+倒序改名：
+`(Get-ChildItem -name | Sort -desc) | %{$x=0} {
+	$newName = "{0:d5}.jpg" -f $x 
+	Rename-Item $_ -NewName $newName ; $x++}`
+
+* ffmpeg指令
+`ffmpeg -framerate 60 -i '%05d.jpg' -c:v libx264 -pix_fmt yuv420p out.mp4` [ref-1](https://en.wikibooks.org/wiki/FFMPEG_An_Intermediate_Guide/image_sequence) [ref-2](https://trac.ffmpeg.org/wiki/Slideshow) [ref-3](https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/)
+
+
+* 合併影片
+`ffmpeg -i 20191130_20191205.mp4 -i 20191207_20191221.mp4 -filter_complex "[0:v] [0:a] [1:v] [1:a] concat=n=2:v=1:a=1 [v] [a]" -map "[v]" -map "[a]" output.mp4` [ref](https://stackoverflow.com/questions/7333232/how-to-concatenate-two-mp4-files-using-ffmpeg)
+
+## 串流備註 ##
+設定好nginx rtmp module後，把`crontab -e`自動啟動`videoStreaming.sh`
+`@reboot sh /home/pi/Timelapse/videoStreaming.sh > /dev/null`
+
 
 ## 參考資料 ##
 1. [Script要怎麼每當整點就執行一次指令？](https://www.ptt.cc/bbs/Linux/M.1316098032.A.53C.html)
